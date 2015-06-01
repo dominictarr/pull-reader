@@ -7,10 +7,10 @@
     "type": "git",
     "url": "git://github.com/dominictarr/pull-reader.git"
   },
-  "dependencies": {},
   "devDependencies": {
     "tape": "~4.0.0",
-    "pull-stream": "~2.26.0"
+    "pull-stream": "~2.26.0",
+    "pull-randomly-split": "~1.0.4"
   },
   "scripts": {
     "prepublish": "npm ls &&  npm test",
