@@ -14,7 +14,6 @@ module.exports = function () {
   var queue = [], read, reading = false, state = State(), ended, streaming
 
   function drain () {
-    console.log(queue.length, state.data.length)
     while (queue.length) {
       if(null == queue[0].length && state.has(1)) {
         queue.shift().cb(null, state.get())
@@ -34,7 +33,6 @@ module.exports = function () {
 
   function more () {
     var d = drain()
-    console.log('MORE?', d, queue.length, state.data.length)
     if(d && !reading)
     if(read && !reading && !streaming) {
       reading = true
