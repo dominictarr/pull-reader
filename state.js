@@ -1,64 +1,41 @@
 
-var BufferList = require('bl')
-
 module.exports = function () {
 
-  var bl = new BufferList()
-
-  function get (n) {
-    var len = n == null ? bl.length : n
-    var data = bl.slice(0, len)
-    bl.consume(n)
-    return data
-  }
-
+  var buffers = [], length = 0
   return {
-    data: bl,
-    add: function (data) {
-      bl.append(data)
-      return this
-    },
-    has: function (n) {
-      if(n == null) return bl.length > 0
-      return bl.length >= n
-
-    },
-    get: function (n) {
-      if(n == null) return get()
-      if(!this.has(n))
-        throw new Error(
-          'current length is:'+bl.length
-          + ', could not get:'+n + ' bytes'
-        )
-      return get(n)
-    }
-  }
-
-  var soFar = new Buffer(0)
-
-  return {
-    data: soFar,
+    length: length,
+    data: this,
     add: function (data) {
       if(!Buffer.isBuffer(data))
         throw new Error('data must be a buffer, was: ' + JSON.stringify(data))
-      this.data = soFar = Buffer.concat([soFar, data])
+      this.length = length = length + data.length
+      buffers.push(data)
       return this
     },
     has: function (n) {
-      if(null == n) return soFar.length > 0
-      return soFar.length - (n || 0) >= 0
+      if(null == n) return length > 0
+      return length - (n || 0) >= 0
     },
     get: function (n) {
-      var next
-      if(null == n) {
-        next = soFar
-        soFar = new Buffer(0)
-        return next
+      if(n == null || n === length) {
+        length = 0
+        var _buffers = buffers
+        buffers = []
+        return Buffer.concat(_buffers)
+      } else if(n <= length) {
+        var out = [], len = 0
+        while((len + buffers[0].length) <= n) {
+          var b = buffers.shift()
+          len += b.length
+          out.push(b)
+        }
+        if(len < n) {
+          out.push(buffers[0].slice(0, n - len))
+          buffers[0] = buffers[0].slice(n - len, buffers[0].length)
+          this.length = length = length - n
+        }
+        return Buffer.concat(out)
       }
-      next = soFar.slice(0, n)
-      if(soFar.length < n) throw new Error('current length is:'+soFar.length + ', could not get:'+n + ' bytes')
-      soFar = soFar.slice(n, soFar.length)
-      return next
     }
   }
 
