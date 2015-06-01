@@ -44,6 +44,33 @@ tape('read multiple sections', function (t) {
   t.end()
 })
 
+tape('read overlaping sections', function (t) {
+  var state = State()
+  t.notOk(state.has(1))
+  state.add(bytes.slice(0, 32))
+  state.add(bytes.slice(32, 64))
+  t.ok(state.has(1))
+
+  t.deepEqual(state.get(31), bytes.slice(0, 31))
+  t.deepEqual(state.get(33), bytes.slice(31, 64))
+  t.end()
+})
+
+tape('read overlaping sections', function (t) {
+  var state = State()
+  t.notOk(state.has(1))
+  state.add(bytes.slice(0, 32))
+  state.add(bytes.slice(32, 64))
+  t.ok(state.has(1))
+
+  t.deepEqual(state.get(33), bytes.slice(0, 33))
+  t.deepEqual(state.get(31), bytes.slice(33, 64))
+  t.end()
+})
+
+
+
+
 tape('get whatever is left', function (t) {
   var state = State()
   t.notOk(state.has(1))
