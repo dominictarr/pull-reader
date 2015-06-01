@@ -2,6 +2,14 @@
 module.exports = function () {
 
   var buffers = [], length = 0
+
+  //just used for debugging...
+  function calcLength () {
+    return buffers.reduce(function (a, b) {
+      return a + b.length
+    }, 0)
+  }
+
   return {
     length: length,
     data: this,
@@ -14,7 +22,7 @@ module.exports = function () {
     },
     has: function (n) {
       if(null == n) return length > 0
-      return length - (n || 0) >= 0
+      return length >= n
     },
     get: function (n) {
       if(n == null || n === length) {
@@ -22,13 +30,15 @@ module.exports = function () {
         var _buffers = buffers
         buffers = []
         return Buffer.concat(_buffers)
-      } else if(n <= length) {
+      } else if(n < length) {
         var out = [], len = 0
-        while((len + buffers[0].length) <= n) {
+
+        while((len + buffers[0].length) < n) {
           var b = buffers.shift()
           len += b.length
           out.push(b)
         }
+
         if(len < n) {
           out.push(buffers[0].slice(0, n - len))
           buffers[0] = buffers[0].slice(n - len, buffers[0].length)
@@ -36,6 +46,8 @@ module.exports = function () {
         }
         return Buffer.concat(out)
       }
+      else
+        throw new Error('could not get ' + n + ' bytes')
     }
   }
 
