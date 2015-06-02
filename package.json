@@ -11,7 +11,8 @@
     "tape": "~4.0.0",
     "pull-stream": "~2.26.0",
     "pull-randomly-split": "~1.0.4",
-    "benchmark": "~1.0.0"
+    "benchmark": "~1.0.0",
+    "bl": "~0.9.4"
   },
   "scripts": {
     "prepublish": "npm ls &&  npm test",
