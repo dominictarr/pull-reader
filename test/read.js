@@ -92,3 +92,112 @@ tape('read a stream', function (t) {
   )
 
 })
+
+tape('async read', function (t) {
+
+  var reader = Reader()
+
+  pull(
+    pull.values([new Buffer('hello there')]),
+    reader
+  )
+
+  setTimeout(function () {
+    reader.read(6, function (err, hello_) {
+      setTimeout(function () {
+        reader.read(5, function (err, there) {
+        if(err) throw new Error('unexpected end')
+          t.deepEqual(Buffer.concat([hello_, there]).toString(), 'hello there')
+          t.end()
+        })
+      })
+    })
+  })
+
+})
+
+//a stream that does nothing until it's aborted.
+//for testing.
+
+function hang (onAbort) {
+  var _cb
+  return function (end, cb) {
+    if(!end) _cb = cb
+    else {
+      if(_cb) {
+        var tmpcb = _cb
+        _cb = null
+        tmpcb(end)
+      }
+      cb(end)
+      onAbort && onAbort(end, _cb)
+    }
+
+  }
+
+}
+
+tape('abort the stream', function (t) {
+
+  var reader = Reader()
+
+  pull(
+    hang(function (err) {
+      t.end()
+    }),
+    reader
+  )
+
+  reader.abort()
+
+})
+
+
+tape('abort the stream and a read', function (t) {
+
+  t.plan(4)
+  var reader = Reader(), err = new Error('intended')
+
+  pull(
+    hang(function (err) {
+      t.end()
+    }),
+    reader
+  )
+
+  reader.read(32, function (_err) {
+    t.equal(_err, err)
+  })
+  reader.read(32, function (_err) {
+    t.equal(_err, err)
+  })
+  reader.read(32, function (_err) {
+    t.equal(_err, err)
+  })
+
+  reader.abort(err, function (_err) {
+    t.equal(_err, err)
+  })
+
+})
+
+tape('if streaming, the stream should abort', function (t) {
+
+  var reader = Reader(), err = new Error('intended')
+
+  pull(
+    hang(),
+    reader
+  )
+
+  pull(
+    reader.read(),
+    pull.collect(function (_err) {
+      t.equal(_err, err)
+      t.end()
+    })
+  )
+
+  reader.abort(err)
+
+})
