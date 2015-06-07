@@ -11,7 +11,8 @@ function isFunction (f) {
 
 module.exports = function () {
 
-  var queue = [], read, reading = false, state = State(), ended, streaming
+  var queue = [], read, reading = false
+  var state = State(), ended, streaming, abort
 
   function drain () {
     while (queue.length) {
@@ -28,7 +29,7 @@ module.exports = function () {
         return !!queue.length
     }
     //always read a little data
-    return queue.length || !state.has(1)
+    return queue.length || !state.has(1) || abort
   }
 
   function more () {
@@ -49,8 +50,25 @@ module.exports = function () {
   }
 
   function reader (_read) {
+    if(abort) {
+      while(queue.length) queue.shift()(abort)
+      return cb && cb(abort)
+    }
     read = _read
     more()
+  }
+
+  reader.abort = function (err, cb) {
+    abort = err || true
+    if(read) {
+      reading = true
+      read(abort, function () {
+        while(queue.length) queue.shift()(abort)
+        cb && cb(abort)
+      })
+    }
+    else
+      cb()
   }
 
   reader.read = function (len, cb) {
@@ -65,11 +83,13 @@ module.exports = function () {
       return function (abort, cb) {
         //if there is anything still in the queue,
         if(reading || state.has(1)) {
+          if(abort)
+            return read.abort(abort, cb)
           queue.push({length: null, cb: cb})
           more()
         }
         else
-          console.log('simple stream'), read(abort, cb)
+          read(abort, cb)
       }
     }
   }
