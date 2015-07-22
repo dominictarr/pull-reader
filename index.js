@@ -51,7 +51,7 @@ module.exports = function () {
 
   function reader (_read) {
     if(abort) {
-      while(queue.length) queue.shift()(abort)
+      while(queue.length) queue.shift().cb(abort)
       return cb && cb(abort)
     }
     read = _read
@@ -63,7 +63,7 @@ module.exports = function () {
     if(read) {
       reading = true
       read(abort, function () {
-        while(queue.length) queue.shift()(abort)
+        while(queue.length) queue.shift().cb(abort)
         cb && cb(abort)
       })
     }
