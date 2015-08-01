@@ -89,7 +89,9 @@ module.exports = function () {
           more()
         }
         else
-          read(abort, cb)
+          read(abort, function (err, data) {
+            cb(err, data)
+          })
       }
     }
   }
