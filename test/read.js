@@ -201,3 +201,26 @@ tape('if streaming, the stream should abort', function (t) {
   reader.abort(err)
 
 })
+
+tape('configurable timeout', function (t) {
+
+  var reader = Reader(100)
+  var start = Date.now()
+  pull(
+    hang(),
+    reader
+  )
+
+  pull(
+    reader.read(),
+    pull.collect(function (err) {
+      t.ok(err)
+      t.ok(Date.now() < start + 300)
+      t.end()
+    })
+  )
+
+})
+
+
+
