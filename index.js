@@ -9,7 +9,22 @@ function isFunction (f) {
   return 'function' === typeof f
 }
 
-module.exports = function () {
+function maxDelay(fn, delay) {
+
+  return function (a, cb) {
+    var timer = setTimeout(function () {
+      fn(new Error('pull-reader: read exceeded timeout'), cb)
+    })
+    fn(a, function (err, value) {
+      clearTimeout(timer)
+      cb(err, value)
+    })
+
+  }
+
+}
+
+module.exports = function (timeout) {
 
   var queue = [], read, reading = false
   var state = State(), ended, streaming, abort
@@ -54,7 +69,7 @@ module.exports = function () {
       while(queue.length) queue.shift().cb(abort)
       return cb && cb(abort)
     }
-    read = _read
+    read = maxDelay(_read, timeout || 10e3)
     more()
   }
 
@@ -98,4 +113,6 @@ module.exports = function () {
 
   return reader
 }
+
+
 
