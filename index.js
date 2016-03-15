@@ -14,7 +14,7 @@ function maxDelay(fn, delay) {
   return function (a, cb) {
     var timer = setTimeout(function () {
       fn(new Error('pull-reader: read exceeded timeout'), cb)
-    })
+    }, delay)
     fn(a, function (err, value) {
       clearTimeout(timer)
       cb(err, value)
