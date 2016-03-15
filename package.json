@@ -1,7 +1,7 @@
 {
   "name": "pull-reader",
   "description": "read bytes from a binary pull stream",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "homepage": "https://github.com/dominictarr/pull-reader",
   "repository": {
     "type": "git",
