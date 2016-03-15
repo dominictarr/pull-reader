@@ -1,7 +1,7 @@
 {
   "name": "pull-reader",
   "description": "read bytes from a binary pull stream",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "homepage": "https://github.com/dominictarr/pull-reader",
   "repository": {
     "type": "git",
@@ -13,7 +13,7 @@
     "pull-randomly-split": "~1.0.4",
     "benchmark": "~1.0.0"
   },
-  "dependencies":{
+  "dependencies": {
     "bl": "~0.9.4"
   },
   "scripts": {
@@ -23,4 +23,3 @@
   "author": "Dominic Tarr <dominic.tarr@gmail.com> (http://dominictarr.com)",
   "license": "MIT"
 }
-
