@@ -223,4 +223,30 @@ tape('configurable timeout', function (t) {
 })
 
 
+tape('timeout does not apply to the rest of the stream', function (t) {
+  var reader = Reader(100)
+  var once = false
+  pull(
+    function (abort, cb) {
+      if(!once)
+        setTimeout(function () {
+          once = true
+          cb(null, new Buffer('hello world'))
+        }, 200)
+      else
+        cb(true)
+    },
+    reader
+  )
+
+  pull(
+    reader.read(),
+    pull.collect(function (err, ary) {
+      console.log(err)
+      t.notOk(err)
+      t.equal(Buffer.concat(ary).toString(), 'hello world')
+      t.end()
+    })
+  )
+})
 
