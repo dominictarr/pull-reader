@@ -14,7 +14,7 @@
     "benchmark": "~1.0.0"
   },
   "dependencies": {
-    "bl": "~0.9.4"
+    "bl": "^1.1.2"
   },
   "scripts": {
     "prepublish": "npm ls &&  npm test",
