@@ -1,4 +1,4 @@
-
+'use strict'
 var State = require('./bl-state')
 
 function isInteger (i) {
@@ -10,7 +10,7 @@ function isFunction (f) {
 }
 
 function maxDelay(fn, delay) {
-
+  if(!delay) return fn
   return function (a, cb) {
     var timer = setTimeout(function () {
       fn(new Error('pull-reader: read exceeded timeout'), cb)
@@ -26,7 +26,7 @@ function maxDelay(fn, delay) {
 
 module.exports = function (timeout) {
 
-  var queue = [], read, reading = false
+  var queue = [], read, readTimed, reading = false
   var state = State(), ended, streaming, abort
 
   function drain () {
@@ -52,7 +52,7 @@ module.exports = function (timeout) {
     if(d && !reading)
     if(read && !reading && !streaming) {
       reading = true
-      read(null, function (err, data) {
+      readTimed (null, function (err, data) {
         reading = false
         if(err) {
           ended = err
@@ -69,7 +69,8 @@ module.exports = function (timeout) {
       while(queue.length) queue.shift().cb(abort)
       return cb && cb(abort)
     }
-    read = maxDelay(_read, timeout || 10e3)
+    readTimed = maxDelay(_read, timeout)
+    read = _read
     more()
   }
 
@@ -86,7 +87,9 @@ module.exports = function (timeout) {
       cb()
   }
 
-  reader.read = function (len, cb) {
+  reader.read = function (len, timeout, cb) {
+    if(isFunction(timeout))
+      cb = timeout, timeout = 0
     if(isFunction(cb)) {
       queue.push({length: isInteger(len) ? len : null, cb: cb})
       more()
@@ -104,7 +107,7 @@ module.exports = function (timeout) {
           more()
         }
         else
-          read(abort, function (err, data) {
+          maxDelay(read, timeout)(abort, function (err, data) {
             cb(err, data)
           })
       }
