@@ -179,6 +179,22 @@ tape('if streaming, the stream should abort', function (t) {
 
 })
 
+tape('abort stream once in streaming mode', function (t) {
+
+  var reader = Reader(), err = new Error('intended')
+
+  pull(Hang(), reader)
+
+  var read = reader.read()
+
+  read(true, function (err) {
+    t.ok(err)
+    t.end()
+  })
+
+})
+
+
 tape('configurable timeout', function (t) {
 
   var reader = Reader(100)
@@ -223,5 +239,8 @@ tape('timeout does not apply to the rest of the stream', function (t) {
     })
   )
 })
+
+
+
 
 
