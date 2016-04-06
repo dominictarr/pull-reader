@@ -101,8 +101,7 @@ module.exports = function (timeout) {
       return function (abort, cb) {
         //if there is anything still in the queue,
         if(reading || state.has(1)) {
-          if(abort)
-            return read.abort(abort, cb)
+          if(abort) return read(abort, cb)
           queue.push({length: null, cb: cb})
           more()
         }
