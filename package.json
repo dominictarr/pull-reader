@@ -8,10 +8,11 @@
     "url": "git://github.com/dominictarr/pull-reader.git"
   },
   "devDependencies": {
-    "tape": "~4.0.0",
-    "pull-stream": "~2.26.0",
+    "benchmark": "~1.0.0",
+    "pull-hang": "0.0.0",
     "pull-randomly-split": "~1.0.4",
-    "benchmark": "~1.0.0"
+    "pull-stream": "~2.26.0",
+    "tape": "~4.0.0"
   },
   "dependencies": {
     "bl": "^1.1.2"

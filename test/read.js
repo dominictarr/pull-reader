@@ -3,6 +3,7 @@ var split = require('pull-randomly-split')
 var pull = require('pull-stream')
 var crypto = require('crypto')
 var Reader = require('../')
+var Hang = require('pull-hang')
 
 var bytes = crypto.randomBytes(64)
 
@@ -116,33 +117,12 @@ tape('async read', function (t) {
 
 })
 
-//a stream that does nothing until it's aborted.
-//for testing.
-
-function hang (onAbort) {
-  var _cb
-  return function (end, cb) {
-    if(!end) _cb = cb
-    else {
-      if(_cb) {
-        var tmpcb = _cb
-        _cb = null
-        tmpcb(end)
-      }
-      cb(end)
-      onAbort && onAbort(end, _cb)
-    }
-
-  }
-
-}
-
 tape('abort the stream', function (t) {
 
   var reader = Reader()
 
   pull(
-    hang(function (err) {
+    Hang(function (err) {
       t.end()
     }),
     reader
@@ -159,7 +139,7 @@ tape('abort the stream and a read', function (t) {
   var reader = Reader(), err = new Error('intended')
 
   pull(
-    hang(function (err) {
+    Hang(function (err) {
       t.end()
     }),
     reader
@@ -185,10 +165,7 @@ tape('if streaming, the stream should abort', function (t) {
 
   var reader = Reader(), err = new Error('intended')
 
-  pull(
-    hang(),
-    reader
-  )
+  pull(Hang(), reader)
 
   pull(
     reader.read(),
@@ -206,10 +183,7 @@ tape('configurable timeout', function (t) {
 
   var reader = Reader(100)
   var start = Date.now()
-  pull(
-    hang(),
-    reader
-  )
+  pull(Hang(), reader)
 
   pull(
     reader.read(),
@@ -249,4 +223,5 @@ tape('timeout does not apply to the rest of the stream', function (t) {
     })
   )
 })
+
 
