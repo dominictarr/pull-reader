@@ -1,5 +1,5 @@
 'use strict'
-var State = require('./bl-state')
+var State = require('./state')
 
 function isInteger (i) {
   return Number.isFinite(i)
