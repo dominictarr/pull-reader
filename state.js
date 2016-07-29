@@ -25,12 +25,26 @@ module.exports = function () {
       return length >= n
     },
     get: function (n) {
+      var _length
       if(n == null || n === length) {
         length = 0
         var _buffers = buffers
         buffers = []
-        return Buffer.concat(_buffers)
-      } else if(n < length) {
+        if(_buffers.length == 1)
+          return _buffers[0]
+        else
+          return Buffer.concat(_buffers)
+      } else if (buffers.length > 1 && n <= (_length = buffers[0].length)) {
+        var buf = buffers[0].slice(0, n)
+        if(n === _length) {
+          buffers.shift()
+        }
+        else {
+          buffers[0] = buffers[0].slice(n, _length)
+        }
+        length -= n
+        return buf
+      }  else if(n < length) {
         var out = [], len = 0
 
         while((len + buffers[0].length) < n) {
@@ -52,3 +66,8 @@ module.exports = function () {
   }
 
 }
+
+
+
+
+
