@@ -12,10 +12,8 @@
     "pull-hang": "0.0.0",
     "pull-randomly-split": "~1.0.4",
     "pull-stream": "~2.26.0",
+    "bl": "^1.1.2",
     "tape": "~4.0.0"
-  },
-  "dependencies": {
-    "bl": "^1.1.2"
   },
   "scripts": {
     "prepublish": "npm ls &&  npm test",
@@ -24,3 +22,5 @@
   "author": "Dominic Tarr <dominic.tarr@gmail.com> (http://dominictarr.com)",
   "license": "MIT"
 }
+
+
