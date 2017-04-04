@@ -87,9 +87,9 @@ module.exports = function (timeout) {
       cb()
   }
 
-  reader.read = function (len, timeout, cb) {
-    if(isFunction(timeout))
-      cb = timeout, timeout = 0
+  reader.read = function (len, _timeout, cb) {
+    if(isFunction(_timeout))
+      cb = _timeout, _timeout = timeout
     if(isFunction(cb)) {
       queue.push({length: isInteger(len) ? len : null, cb: cb})
       more()
@@ -106,7 +106,7 @@ module.exports = function (timeout) {
           more()
         }
         else
-          maxDelay(read, timeout)(abort, function (err, data) {
+          maxDelay(read, _timeout)(abort, function (err, data) {
             cb(err, data)
           })
       }
