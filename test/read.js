@@ -181,7 +181,7 @@ tape('if streaming, the stream should abort', function (t) {
 
 tape('abort stream once in streaming mode', function (t) {
 
-  var reader = Reader(), err = new Error('intended')
+  var reader = Reader()
 
   pull(Hang(), reader)
 
@@ -232,7 +232,6 @@ tape('timeout does not apply to the rest of the stream', function (t) {
   pull(
     reader.read(),
     pull.collect(function (err, ary) {
-      console.log(err)
       t.notOk(err)
       t.equal(Buffer.concat(ary).toString(), 'hello world')
       t.end()
@@ -241,6 +240,37 @@ tape('timeout does not apply to the rest of the stream', function (t) {
 })
 
 
+tape('overreading results in an error', function (t) {
+  var corruptedBytes = crypto.randomBytes(10)
+
+  pull(
+    pull.values([corruptedBytes]),
+    reader = Reader(20e3)
+  )
+
+  reader.read(11, function(_err) {
+    t.ok(_err)
+    t.end()
+  })
+})
+
+
+tape('overreading with multiple reads results in an error', function (t) {
+  var corruptedBytes = crypto.randomBytes(10)
+
+  pull(
+    pull.values([corruptedBytes]),
+    reader = Reader()
+  )
+
+  reader.read(1, function(err) {
+    t.notOk(err)
+    reader.read(100, function(_err) {
+      t.ok(_err)
+      t.end()
+    })
+  })
+})
 
 
 
