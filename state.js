@@ -12,11 +12,15 @@ module.exports = function () {
 
   return {
     length: length,
+    total: 0,
     data: this,
+    wants: 0,
+    read: 0,
     add: function (data) {
       if(!Buffer.isBuffer(data))
         throw new Error('data must be a buffer, was: ' + JSON.stringify(data))
       this.length = length = length + data.length
+      this.total += data.length
       buffers.push(data)
       return this
     },
@@ -24,7 +28,7 @@ module.exports = function () {
       if(null == n) return length > 0
       return length >= n
     },
-    get: function (n) {
+    _get: function (n) {
       var _length
       if(n == null || n === length) {
         length = 0
@@ -62,12 +66,12 @@ module.exports = function () {
       }
       else
         throw new Error('could not get ' + n + ' bytes')
+    },
+    get: function(n) {
+      var b = this._get(n)
+      this.read += b.length
+      return b
     }
   }
 
 }
-
-
-
-
-

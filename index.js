@@ -9,25 +9,28 @@ function isFunction (f) {
   return 'function' === typeof f
 }
 
-function maxDelay(fn, delay) {
-  if(!delay) return fn
-  return function (a, cb) {
-    var timer = setTimeout(function () {
-      fn(new Error('pull-reader: read exceeded timeout'), cb)
-    }, delay)
-    fn(a, function (err, value) {
-      clearTimeout(timer)
-      cb(err, value)
-    })
-
-  }
-
-}
-
 module.exports = function (timeout) {
 
   var queue = [], read, readTimed, reading = false
   var state = State(), ended, streaming, abort
+
+  function maxDelay(fn, delay) {
+    return function (a, cb) {
+      var timer
+      if (delay) {
+        timer = setTimeout(function () {
+          fn(new Error('pull-reader: read exceeded timeout'), cb)
+        }, delay)
+      }
+      fn(a, function (err, value) {
+        if (delay) clearTimeout(timer)
+        if (err === true && state.read < state.total) {
+          return cb(new Error('attempted to read '+state.wants+' of '+state.total+' bytes'))
+        }
+        cb(err, value)
+      })
+    }
+  }
 
   function drain () {
     while (queue.length) {
@@ -88,6 +91,9 @@ module.exports = function (timeout) {
   }
 
   reader.read = function (len, _timeout, cb) {
+    if(isInteger(len)) {
+      state.wants += len
+    }
     if(isFunction(_timeout))
       cb = _timeout, _timeout = timeout
     if(isFunction(cb)) {
@@ -115,8 +121,3 @@ module.exports = function (timeout) {
 
   return reader
 }
-
-
-
-
-
