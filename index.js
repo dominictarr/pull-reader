@@ -38,8 +38,10 @@ module.exports = function (timeout) {
         var next = queue.shift()
         next.cb(null, state.get(next.length))
       }
-      else if(ended == true && queue[0].length && state.length < queue[0].length)
-        queue.shift().cb(new Error('stream ended with:'+state.length+' but wanted:'+queue.length))
+      else if(ended == true && queue[0].length && state.length < queue[0].length) {
+        var msg = 'stream ended with:'+state.length+' but wanted:'+queue[0].length
+        queue.shift().cb(new Error(msg))
+      }
       else if(ended)
         queue.shift().cb(ended)
       else
@@ -117,6 +119,7 @@ module.exports = function (timeout) {
 
   return reader
 }
+
 
 
 
